@@ -9,19 +9,34 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <style>
+        body { margin:0; }
         #map { height: 100vh; }
+
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
         .legend {
             background: white;
             padding: 10px;
-            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-<h3 style="position:absolute; z-index:1000; background:white; padding:5px;">
-Zgomot aeroport principal
-</h3>
+<div id="controls">
+    <b>Layer:</b><br>
+    <select id="layerSelect">
+        <option value="lden">Lden</option>
+        <option value="lnight">Lnight</option>
+    </select>
+</div>
 
 <div id="map"></div>
 
@@ -36,32 +51,35 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 // WMS URL
 var wmsUrl = "https://geonoise.mmap.ro/ows/services/org.3.de598b24-1d9c-4118-b513-69014889fff1_wms";
 
-// Lden
+// Layere
 var lden = L.tileLayer.wms(wmsUrl, {
     layers: 'NoiseContours_majorAirportsIncludingAgglomeration_Lden',
     format: 'image/png',
     transparent: true
 });
 
-// Lnight
 var lnight = L.tileLayer.wms(wmsUrl, {
     layers: 'NoiseContours_majorAirportsIncludingAgglomeration_Lnight',
     format: 'image/png',
     transparent: true
 });
 
-// IMPORTANT: adăugăm DOAR unul implicit
+// default
 lden.addTo(map);
 
-// Selector layer
-var overlayMaps = {
-    "Lden (zi-seară-noapte)": lden,
-    "Lnight (noapte)": lnight
-};
+// selector logic
+document.getElementById("layerSelect").addEventListener("change", function() {
+    map.removeLayer(lden);
+    map.removeLayer(lnight);
 
-L.control.layers(null, overlayMaps).addTo(map);
+    if (this.value === "lden") {
+        lden.addTo(map);
+    } else {
+        lnight.addTo(map);
+    }
+});
 
-// Legendă corectă (contururi)
+// legendă
 var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function () {
