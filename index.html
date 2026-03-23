@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hartă zgomot aeroport principal</title>
+    <title>Zgomot aeroport principal</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -20,13 +20,13 @@
 <body>
 
 <h3 style="position:absolute; z-index:1000; background:white; padding:5px;">
-Hartă zgomot aeroport principal
+Zgomot aeroport principal
 </h3>
 
 <div id="map"></div>
 
 <script>
-var map = L.map('map').setView([44.5, 26.1], 8);
+var map = L.map('map').setView([44.5, 26.1], 9);
 
 // Basemap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -40,37 +40,40 @@ var wmsUrl = "https://geonoise.mmap.ro/ows/services/org.3.de598b24-1d9c-4118-b51
 var lden = L.tileLayer.wms(wmsUrl, {
     layers: 'NoiseContours_majorAirportsIncludingAgglomeration_Lden',
     format: 'image/png',
-    transparent: true,
-    opacity: 0.6
+    transparent: true
 });
 
 // Lnight
 var lnight = L.tileLayer.wms(wmsUrl, {
     layers: 'NoiseContours_majorAirportsIncludingAgglomeration_Lnight',
     format: 'image/png',
-    transparent: true,
-    opacity: 0.6
+    transparent: true
 });
 
-// Adaugă Lden implicit
+// IMPORTANT: adăugăm DOAR unul implicit
 lden.addTo(map);
 
-// Switch layer
-L.control.layers(null, {
-    "Zgomot Lden": lden,
-    "Zgomot Lnight": lnight
-}).addTo(map);
+// Selector layer
+var overlayMaps = {
+    "Lden (zi-seară-noapte)": lden,
+    "Lnight (noapte)": lnight
+};
 
-// Legendă (simplificată)
+L.control.layers(null, overlayMaps).addTo(map);
+
+// Legendă corectă (contururi)
 var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function () {
     var div = L.DomUtil.create('div', 'legend');
     div.innerHTML = `
-        <b>Legendă (indicativă)</b><br>
-        Culori = nivel zgomot (dB)<br>
-        Lden = zi-seară-noapte<br>
-        Lnight = noapte
+        <b>Legendă</b><br>
+        <div style="display:flex; align-items:center;">
+            <div style="width:25px;height:2px;background:black;margin-right:5px;"></div>
+            Contur zgomot
+        </div>
+        Lden – zi-seară-noapte<br>
+        Lnight – noapte
     `;
     return div;
 };
