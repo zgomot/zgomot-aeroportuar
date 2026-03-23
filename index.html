@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hartă zgomot aeroport principal</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        #map { height: 100vh; }
+        .legend {
+            background: white;
+            padding: 10px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<h3 style="position:absolute; z-index:1000; background:white; padding:5px;">
+Hartă zgomot aeroport principal
+</h3>
+
+<div id="map"></div>
+
+<script>
+var map = L.map('map').setView([44.5, 26.1], 8);
+
+// Basemap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+// WMS URL
+var wmsUrl = "https://geonoise.mmap.ro/ows/services/org.3.de598b24-1d9c-4118-b513-69014889fff1_wms";
+
+// Lden
+var lden = L.tileLayer.wms(wmsUrl, {
+    layers: 'NoiseContours_majorAirportsIncludingAgglomeration_Lden',
+    format: 'image/png',
+    transparent: true,
+    opacity: 0.6
+});
+
+// Lnight
+var lnight = L.tileLayer.wms(wmsUrl, {
+    layers: 'NoiseContours_majorAirportsIncludingAgglomeration_Lnight',
+    format: 'image/png',
+    transparent: true,
+    opacity: 0.6
+});
+
+// Adaugă Lden implicit
+lden.addTo(map);
+
+// Switch layer
+L.control.layers(null, {
+    "Zgomot Lden": lden,
+    "Zgomot Lnight": lnight
+}).addTo(map);
+
+// Legendă (simplificată)
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function () {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = `
+        <b>Legendă (indicativă)</b><br>
+        Culori = nivel zgomot (dB)<br>
+        Lden = zi-seară-noapte<br>
+        Lnight = noapte
+    `;
+    return div;
+};
+
+legend.addTo(map);
+
+</script>
+
+</body>
+</html>
